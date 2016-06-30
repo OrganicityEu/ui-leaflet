@@ -65,11 +65,22 @@ angular.module('ui-leaflet')
             }
         },
         geoJSONShape: {
-            mustHaveUrl: false,
-            createLayer: function(params) {
-                        return new L.GeoJSON(params.data,
-                            params.options);
-            }
+          mustHaveUrl: false,
+          createLayer: function(params) {
+              if(params.options && params.options.cluster) {
+                  if (!Helpers.MarkerClusterPlugin.isLoaded()) {
+                      $log.warn(errorHeader + ' The markercluster plugin is not loaded.');
+                      return;
+                  }
+                  var clusterLayer = new L.MarkerClusterGroup(params.options);
+                  var geoJsonLayer = new L.GeoJSON(params.data, params.options); 
+                  clusterLayer.addLayer(geoJsonLayer);
+                  return clusterLayer;
+              } else {
+                  return new L.GeoJSON(params.data, params.options);
+              }
+
+          }
         },
         geoJSONAwesomeMarker: {
             mustHaveUrl: false,
